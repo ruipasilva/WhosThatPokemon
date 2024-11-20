@@ -19,5 +19,14 @@ extension View {
     func primaryButtonStyling() -> some View {
         modifier(PrimaryButtonStyling())
     }
-    
+}
+
+struct PrimaryButtonStyling: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .buttonStyle(.borderedProminent)
+            .tint(.yellow)
+            .shadow(color: .blue, radius: 2)
+            .opacity(0.8)
+    }
 }

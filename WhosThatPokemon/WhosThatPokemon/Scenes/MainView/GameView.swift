@@ -6,25 +6,19 @@
 //
 
 import SwiftUI
+import Pow
 
 struct GameView: View {
     @StateObject private var viewModel = GameViewViewModel()
     @AppStorage("topScore") private var topScore = 0
     
-    let columns = [
-        GridItem(.adaptive(minimum: 200, maximum: 400)),
-        GridItem(.adaptive(minimum: 200, maximum: 400)),
-    ]
+    private var gridItemLayout = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     
     var body: some View {
         ZStack {
             LinearGradient(colors: [.red, .blue], startPoint: .top, endPoint: .bottom)
             titleView
-            VStack {
-                imageView
-                multipleChoiceView
-                nextButton
-            }
+            imageView
         }
         .ignoresSafeArea()
     }
@@ -41,11 +35,20 @@ struct GameView: View {
             
             HStack {
                 Text("Top Score: \(topScore)")
-                Text("Current Score: \(viewModel.currentScore)")
+                HStack {
+                    Text("Current Score:")
+                    Text("\(viewModel.currentScore)")
+                        .changeEffect(.rise(origin: UnitPoint(x: 0.75, y: 0.25)) {
+                            Text("+1")
+                        }, value: viewModel.currentScore)
+                }
+                
+                
             }
             .monospacedDigit()
             .font(.subheadline)
             .padding(.top)
+            .opacity(viewModel.isGameStarted ? 1 : 0)
             
             Spacer()
         }
@@ -71,12 +74,17 @@ struct GameView: View {
             case .inactive:
                 inactiveView
             case .imageLoaded(pokemon: let pokemon):
-                imageLoadedView(pokemon: pokemon)
+                VStack {
+                    imageLoadedView(pokemon: pokemon)
+                    Spacer()
+                    multipleChoiceView
+                    moreOptionsView
+                }
             case .failed(error: let error):
                 Text("Error: \(error)")
             }
             
-            Spacer()
+            
         }
     }
     
@@ -85,13 +93,21 @@ struct GameView: View {
             Spacer(minLength: 180)
             AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
                 image
-                
                     .image?.resizable()
                     .aspectRatio(contentMode: .fit)
                     .if(!viewModel.isAnswerPicked, view: { view in
                         view.colorMultiply(.black.opacity(0.5))
+                        
                     })
+                    .changeEffect(.shine, value: viewModel.isAnswerPicked)
+                    .changeEffect(.wiggle(rate: .default), value: viewModel.isAnswerPicked)
+                
+                
             }
+            .transition(.movingParts.clock(
+                blurRadius: 50
+            ))
+            .zIndex(1)
             VStack {
                 Text("It's \(pokemon.name.capitalized)!")
                     .font(.largeTitle)
@@ -107,31 +123,40 @@ struct GameView: View {
     }
     
     private var multipleChoiceView: some View {
-        LazyVGrid(columns: columns, alignment: .center, spacing: 10) {
+        LazyVGrid(columns: gridItemLayout, spacing: 10) {
+            
             ForEach(viewModel.fourPossibleAnswers, id: \.name) { pokemon in
-                Button("\(pokemon.name.capitalized)") {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(!viewModel.isAnswerPicked ? .yellow : pokemon.name == viewModel.pokemonDetail?.name ? .green : .red)
+                        .shadow(color: .blue, radius: 2)
+                        .opacity(0.8)
+                    
+                    
+                    Button("\(pokemon.name.capitalized)") {
                         viewModel.isAnswerPicked = true
                         viewModel.isAnswerCorrect = true
                         viewModel.selectedAnswer = pokemon.name
-                    if pokemon.name == viewModel.pokemonDetail?.name {
-                        viewModel.currentScore += 1
-                        if viewModel.currentScore > topScore {
-                            topScore = viewModel.currentScore
+                        if pokemon.name == viewModel.pokemonDetail?.name {
+                            viewModel.currentScore += 1
+                            if viewModel.currentScore > topScore {
+                                topScore = viewModel.currentScore
+                            }
                         }
                     }
+                    
+                    
+                    .buttonStyle(.borderedProminent)
+                    .tint(.clear)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(!viewModel.isAnswerPicked ? .yellow : pokemon.name == viewModel.pokemonDetail?.name ? .green : .red)
-                .shadow(color: .blue, radius: 2)
-                .opacity(0.8)
-                
+                .conditionalEffect(.repeat(.shine, every: .seconds(1)), condition: (pokemon.name == viewModel.pokemonDetail?.name) && viewModel.isAnswerPicked)
             }
         }
         .padding()
     }
     
-    private var nextButton: some View {
-        Group {
+    private var moreOptionsView: some View {
+        VStack(spacing: 10) {
             if viewModel.isGameStarted {
                 Button("Next Pokemon") {
                     Task {
@@ -141,19 +166,18 @@ struct GameView: View {
                     }
                 }
                 .primaryButtonStyling()
-                .padding(.bottom, 12)
+                
+                Button("Leave Game") {
+                        viewModel.isAnswerCorrect = false
+                        viewModel.isAnswerPicked = false
+                        viewModel.gameLoadingState = .inactive
+                        viewModel.isGameStarted = false
+                        viewModel.currentScore = 0
+                }
+                .primaryButtonStyling()
             }
         }
-    }
-}
-
-struct PrimaryButtonStyling: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .buttonStyle(.borderedProminent)
-            .tint(.yellow)
-            .shadow(color: .blue, radius: 2)
-            .opacity(0.8)
+        .padding(.bottom, 22)
     }
 }
 
