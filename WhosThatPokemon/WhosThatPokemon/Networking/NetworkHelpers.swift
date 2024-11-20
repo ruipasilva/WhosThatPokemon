@@ -30,6 +30,6 @@ public enum NetworkError: Error {
 public enum GameLoadingState {
     case inactive
     case loading
-    case imageReveiled(pokemon: Pokemon)
+    case imageLoaded(pokemon: PokemonDetail)
     case failed(error: String)
 }

@@ -12,17 +12,26 @@ import Foundation
 //    let url: String
 //}
 
-public struct Pokemon: Codable {
+public struct PokemonDetail: Codable {
     let name: String
     let sprites: Sprites
 }
 
 public struct Sprites: Codable {
+    var frontDefault: String
     
     enum CodingKeys: String, CodingKey {
             case frontDefault = "front_default"
         }
-    var frontDefault: String
+}
+
+public struct PokemonList: Codable {
+    let results: [Pokemon]
+}
+
+public struct Pokemon: Codable {
+    let name: String
+    let url: String
 }
 
 
