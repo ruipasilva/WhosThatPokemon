@@ -9,10 +9,12 @@ import Foundation
 
 public final class GameViewViewModel: ObservableObject {
     @Published public var gameLoadingState: GameLoadingState = .inactive
-    @Published public var answer: String = ""
+    @Published public var isGameStarted = false
     @Published public var isAnswerPicked = false
-    @Published public var isAnsweredRevealed = false
-    @Published public var isAnswerCorrect: Bool = false
+    @Published public var isAnswerCorrect = false
+    @Published public var selectedAnswer = ""
+    @Published public var currentScore = 0
+    
     
     public var pokemonDetail: PokemonDetail?
     public var allPokemons = [Pokemon]()
@@ -75,5 +77,7 @@ public final class GameViewViewModel: ObservableObject {
         let randomPokemon = randomPokemonUrl
         
         await getPokemon(with: randomPokemon)
+        
+        isGameStarted = true
     }
 }

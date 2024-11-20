@@ -20,7 +20,4 @@ extension View {
         modifier(PrimaryButtonStyling())
     }
     
-    func multipleChoiceButtonStyling(isAnswerCorrect: Bool, isAnswerPicked: Bool) -> some View {
-        modifier(MultipleChoiceButtonStyling(isCorrectAnswer: isAnswerCorrect, isAnswerPicked: isAnswerPicked))
-    }
 }
