@@ -7,15 +7,15 @@
 
 import Foundation
 
-protocol NetworkManaging {
-    func fetchSingle(query: String) async throws -> PokemonDetail
-    func fetchMultiple() async throws -> PokemonList
+public protocol NetworkManaging {
+    func fetchSinglePokemon(query: String) async throws -> PokemonDetail
+    func fetchMultiplePokemons() async throws -> PokemonList
 }
 
 public struct NetworkManager: NetworkManaging {
     typealias Urls = Constants.Urls
     
-    func fetchSingle(query: String) async throws -> PokemonDetail {
+    public func fetchSinglePokemon(query: String) async throws -> PokemonDetail {
         
         guard let url = URL(string: query) else {
             throw NetworkError.invalidURL
@@ -34,7 +34,7 @@ public struct NetworkManager: NetworkManaging {
         return decodedData
     }
     
-    func fetchMultiple() async throws -> PokemonList {
+    public func fetchMultiplePokemons() async throws -> PokemonList {
         let url = Urls.baseURL + Urls.pokemonListURL
         
         guard let url = URL(string: url) else {

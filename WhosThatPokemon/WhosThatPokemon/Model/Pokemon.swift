@@ -7,11 +7,6 @@
 
 import Foundation
 
-//public struct Pokemon: Decodable {
-//    let name: String
-//    let url: String
-//}
-
 public struct PokemonDetail: Codable {
     let name: String
     let sprites: Sprites
@@ -26,7 +21,7 @@ public struct Sprites: Codable {
 }
 
 public struct PokemonList: Codable {
-    let results: [Pokemon]
+    var results: [Pokemon]
 }
 
 public struct Pokemon: Codable {

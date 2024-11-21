@@ -18,9 +18,9 @@ public final class GameViewViewModel: ObservableObject {
     
     public var pokemonDetail: PokemonDetail?
     public var allPokemons = [Pokemon]()
-    public var fourPossibleAnswers = [Pokemon]()
+    public var firstFourRandomPokemons = [Pokemon]()
     
-    let networkManager: NetworkManaging
+    var networkManager: NetworkManaging
     
     
     init(networkManager: NetworkManaging = NetworkManager()) {
@@ -31,9 +31,10 @@ public final class GameViewViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     public func getAllPokemons() async {
         do {
-            let pokemons = try await networkManager.fetchMultiple()
+            let pokemons = try await networkManager.fetchMultiplePokemons()
             
             allPokemons = pokemons.results
         
@@ -46,12 +47,25 @@ public final class GameViewViewModel: ObservableObject {
             gameLoadingState = .failed(error: error.localizedDescription)
         }
     }
+  
+    @MainActor
+    public func getFourPossibleAnswers() async {
+        let pokemonShuffled = allPokemons.shuffled()
+        
+        firstFourRandomPokemons = Array(pokemonShuffled.prefix(upTo: 4))
+        
+        guard let randomPokemonUrl = firstFourRandomPokemons.randomElement()?.url else { return }
+        
+        await getPokemonDetail(with: randomPokemonUrl)
+        
+        isGameStarted = true
+    }
     
     @MainActor
-    private func getPokemon(with url: String) async {
+    private func getPokemonDetail(with url: String) async {
         gameLoadingState = .loading
         do {
-            let pokemonDetail = try await networkManager.fetchSingle(query: url)
+            let pokemonDetail = try await networkManager.fetchSinglePokemon(query: url)
             self.pokemonDetail = pokemonDetail
             gameLoadingState = .imageLoaded(pokemon: pokemonDetail)
         } catch let error as NetworkError {
@@ -64,20 +78,38 @@ public final class GameViewViewModel: ObservableObject {
         }
     }
     
-   
-  
+    public func selectAnswer(_ pokemon: Pokemon, topScore: inout Int) {
+        isAnswerPicked = true
+        isAnswerCorrect = true
+        selectedAnswer = pokemon.name
+        if pokemon.name == pokemonDetail?.name {
+            currentScore += 1
+            if currentScore > topScore {
+                topScore = currentScore
+            }
+        }
+    }
+    
+    public func leaveGame() {
+        isAnswerCorrect = false
+        isAnswerPicked = false
+        isGameStarted = false
+        currentScore = 0
+        gameLoadingState = .inactive
+    }
+    
+    public func reset(score: inout Int) {
+        score = 0
+    }
+    
     @MainActor
-    public func getFourPossibleAnswers() async {
-        let pokemonShuffled = allPokemons.shuffled()
-        
-        fourPossibleAnswers = Array(pokemonShuffled.prefix(upTo: 4))
-        
-        guard let randomPokemonUrl = fourPossibleAnswers.randomElement()?.url else { return }
-        
-        let randomPokemon = randomPokemonUrl
-        
-        await getPokemon(with: randomPokemon)
-        
-        isGameStarted = true
+    public func nextRound() async {
+        isAnswerCorrect = false
+        isAnswerPicked = false
+        await getFourPossibleAnswers()
+    }
+    
+    public func checkIfSameName(pokemon: Pokemon) -> Bool {
+        pokemon.name == pokemonDetail?.name
     }
 }

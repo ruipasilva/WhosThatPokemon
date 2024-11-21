@@ -10,14 +10,30 @@
 		69FABB792CEE86420064A9EF /* Pow in Frameworks */ = {isa = PBXBuildFile; productRef = 69FABB782CEE86420064A9EF /* Pow */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		69FABB952CEEB5890064A9EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6923499D2CECFAED006F182D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 692349A42CECFAED006F182D;
+			remoteInfo = WhosThatPokemon;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		692349A52CECFAED006F182D /* WhosThatPokemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhosThatPokemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		69FABB912CEEB5890064A9EF /* WhosThatPokemonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhosThatPokemonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		692349A72CECFAED006F182D /* WhosThatPokemon */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = WhosThatPokemon;
+			sourceTree = "<group>";
+		};
+		69FABB922CEEB5890064A9EF /* WhosThatPokemonTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WhosThatPokemonTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +47,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		69FABB8E2CEEB5890064A9EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				692349A72CECFAED006F182D /* WhosThatPokemon */,
+				69FABB922CEEB5890064A9EF /* WhosThatPokemonTests */,
 				692349A62CECFAED006F182D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				692349A52CECFAED006F182D /* WhosThatPokemon.app */,
+				69FABB912CEEB5890064A9EF /* WhosThatPokemonTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +101,29 @@
 			productReference = 692349A52CECFAED006F182D /* WhosThatPokemon.app */;
 			productType = "com.apple.product-type.application";
 		};
+		69FABB902CEEB5890064A9EF /* WhosThatPokemonTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 69FABB972CEEB5890064A9EF /* Build configuration list for PBXNativeTarget "WhosThatPokemonTests" */;
+			buildPhases = (
+				69FABB8D2CEEB5890064A9EF /* Sources */,
+				69FABB8E2CEEB5890064A9EF /* Frameworks */,
+				69FABB8F2CEEB5890064A9EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				69FABB962CEEB5890064A9EF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				69FABB922CEEB5890064A9EF /* WhosThatPokemonTests */,
+			);
+			name = WhosThatPokemonTests;
+			packageProductDependencies = (
+			);
+			productName = WhosThatPokemonTests;
+			productReference = 69FABB912CEEB5890064A9EF /* WhosThatPokemonTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -88,6 +136,10 @@
 				TargetAttributes = {
 					692349A42CECFAED006F182D = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					69FABB902CEEB5890064A9EF = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 692349A42CECFAED006F182D;
 					};
 				};
 			};
@@ -109,12 +161,20 @@
 			projectRoot = "";
 			targets = (
 				692349A42CECFAED006F182D /* WhosThatPokemon */,
+				69FABB902CEEB5890064A9EF /* WhosThatPokemonTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		692349A32CECFAED006F182D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		69FABB8F2CEEB5890064A9EF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -131,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		69FABB8D2CEEB5890064A9EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		69FABB962CEEB5890064A9EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 692349A42CECFAED006F182D /* WhosThatPokemon */;
+			targetProxy = 69FABB952CEEB5890064A9EF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		692349B12CECFAEE006F182D /* Debug */ = {
@@ -277,6 +352,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = RuiSilva.WhosThatPokemon;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -307,9 +385,56 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = RuiSilva.WhosThatPokemon;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		69FABB982CEEB5890064A9EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9FVDFCLP22;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = RuiSilva.WhosThatPokemonTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhosThatPokemon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WhosThatPokemon";
+			};
+			name = Debug;
+		};
+		69FABB992CEEB5890064A9EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9FVDFCLP22;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = RuiSilva.WhosThatPokemonTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhosThatPokemon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WhosThatPokemon";
 			};
 			name = Release;
 		};
@@ -330,6 +455,15 @@
 			buildConfigurations = (
 				692349B42CECFAEE006F182D /* Debug */,
 				692349B52CECFAEE006F182D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		69FABB972CEEB5890064A9EF /* Build configuration list for PBXNativeTarget "WhosThatPokemonTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				69FABB982CEEB5890064A9EF /* Debug */,
+				69FABB992CEEB5890064A9EF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

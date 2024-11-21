@@ -16,9 +16,10 @@ struct GameView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(colors: [.red, .blue], startPoint: .top, endPoint: .bottom)
+            Color.mainViewBackground
             titleView
             imageView
+            bottomButtons
         }
         .ignoresSafeArea()
     }
@@ -28,11 +29,9 @@ struct GameView: View {
             Spacer()
                 .frame(height: 120)
             Text("Who's that pokemon?")
-                .font(.largeTitle)
-                .rotationEffect(.degrees(-10))
-                .foregroundStyle(Color.yellow)
-                .shadow(color: .blue, radius: 10)
-            
+                .font(.title)
+                .fontWeight(.heavy)
+                .foregroundStyle(Color.black.opacity(0.8))
             HStack {
                 Text("Top Score: \(topScore)")
                 HStack {
@@ -42,31 +41,18 @@ struct GameView: View {
                             Text("+1")
                         }, value: viewModel.currentScore)
                 }
-                
-                
             }
-            .monospacedDigit()
             .font(.subheadline)
+            .fontWeight(.semibold)
+            .monospacedDigit()
             .padding(.top)
             .opacity(viewModel.isGameStarted ? 1 : 0)
-            
             Spacer()
         }
     }
     
-    private var inactiveView: some View {
-        Button("Start Game") {
-            Task {
-                await viewModel.getFourPossibleAnswers()
-            }
-            print(viewModel.fourPossibleAnswers)
-        }
-        .primaryButtonStyling()
-        .frame(maxHeight: .infinity, alignment: .center)
-    }
-    
     private var imageView: some View {
-        VStack {
+        Group {
             switch viewModel.gameLoadingState {
             case .loading:
                 ProgressView()
@@ -74,110 +60,114 @@ struct GameView: View {
             case .inactive:
                 inactiveView
             case .imageLoaded(pokemon: let pokemon):
-                VStack {
-                    imageLoadedView(pokemon: pokemon)
-                    Spacer()
-                    multipleChoiceView
-                    moreOptionsView
-                }
+                imageLoadedView(pokemon: pokemon)
             case .failed(error: let error):
-                Text("Error: \(error)")
+                Text("Something went wrong with error: \(error)")
             }
-            
-            
         }
     }
     
+    private var bottomButtons: some View {
+        VStack {
+            if viewModel.isGameStarted {
+                Spacer()
+                multipleChoiceView
+                moreOptionsView
+            }
+        }
+    }
+    
+    private var inactiveView: some View {
+        VStack(spacing: 10) {
+            Button("Start Game!") {
+                Task {
+                    await viewModel.getFourPossibleAnswers()
+                }
+            }
+            .inactiveViewModifier()
+            
+            Button("Reset Top Score!") {
+                Task {
+                    viewModel.reset(score: &topScore)
+                }
+            }
+            .inactiveViewModifier()
+        }
+    }
+
+    
     private func imageLoadedView(pokemon: PokemonDetail) -> some View {
-        Group {
-            Spacer(minLength: 180)
+        VStack {
+            Spacer()
             AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
                 image
                     .image?.resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .if(!viewModel.isAnswerPicked, view: { view in
+                    .frame(width: 300, height: 300, alignment: .center)
+                    
+                    .conditionalModifier(!viewModel.isAnswerPicked, view: { view in
                         view.colorMultiply(.black.opacity(0.5))
-                        
                     })
-                    .changeEffect(.shine, value: viewModel.isAnswerPicked)
-                    .changeEffect(.wiggle(rate: .default), value: viewModel.isAnswerPicked)
-                
-                
+                    .changeEffect(.spin, value: viewModel.isAnswerPicked)
             }
-            .transition(.movingParts.clock(
-                blurRadius: 50
-            ))
-            .zIndex(1)
-            VStack {
+            
+            Group {
                 Text("It's \(pokemon.name.capitalized)!")
                     .font(.largeTitle)
-                    .foregroundStyle(Color.yellow)
-                    .shadow(color: .blue, radius: 10)
+                    .fontWeight(.heavy)
+                    .foregroundStyle(Color.white)
                 HStack {
-                    Text("You've picked: \(viewModel.selectedAnswer.capitalized)")
+                    Text("You guessed \(viewModel.selectedAnswer.capitalized)")
+                        .foregroundStyle(Color.brown.opacity(0.8))
+                        .fontWeight(.bold)
                 }
             }
             .opacity(viewModel.isAnswerPicked ? 1 : 0)
-            
+            Spacer()
         }
     }
     
     private var multipleChoiceView: some View {
         LazyVGrid(columns: gridItemLayout, spacing: 10) {
-            
-            ForEach(viewModel.fourPossibleAnswers, id: \.name) { pokemon in
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(!viewModel.isAnswerPicked ? .yellow : pokemon.name == viewModel.pokemonDetail?.name ? .green : .red)
-                        .shadow(color: .blue, radius: 2)
-                        .opacity(0.8)
-                    
-                    
-                    Button("\(pokemon.name.capitalized)") {
-                        viewModel.isAnswerPicked = true
-                        viewModel.isAnswerCorrect = true
-                        viewModel.selectedAnswer = pokemon.name
-                        if pokemon.name == viewModel.pokemonDetail?.name {
-                            viewModel.currentScore += 1
-                            if viewModel.currentScore > topScore {
-                                topScore = viewModel.currentScore
-                            }
-                        }
-                    }
-                    
-                    
-                    .buttonStyle(.borderedProminent)
-                    .tint(.clear)
+            ForEach(viewModel.firstFourRandomPokemons, id: \.name) { pokemon in
+                Button("\(pokemon.name.capitalized)") {
+                    viewModel.selectAnswer(pokemon, topScore: &topScore)
                 }
-                .conditionalEffect(.repeat(.shine, every: .seconds(1)), condition: (pokemon.name == viewModel.pokemonDetail?.name) && viewModel.isAnswerPicked)
+                .multipleChoiceModifier()
+                .conditionalModifier(!viewModel.isAnswerPicked, view: { view in
+                    view
+                        .background(.regularMaterial.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
+                        .environment(\.colorScheme, .dark)
+                })
+                .conditionalModifier(viewModel.isAnswerPicked, view: { view in
+                    view
+                        .background(viewModel.checkIfSameName(pokemon: pokemon) ? .green : .red, in: RoundedRectangle(cornerRadius: 8))
+                        .opacity(0.8)
+                })
+                .conditionalEffect(.repeat(.shine, every: .seconds(1)), condition: viewModel.checkIfSameName(pokemon: pokemon) && viewModel.isAnswerPicked)
             }
         }
         .padding()
     }
     
     private var moreOptionsView: some View {
-        VStack(spacing: 10) {
+        HStack(spacing: 10) {
             if viewModel.isGameStarted {
-                Button("Next Pokemon") {
-                    Task {
-                        viewModel.isAnswerCorrect = false
-                        viewModel.isAnswerPicked = false
-                        await viewModel.getFourPossibleAnswers()
-                    }
-                }
-                .primaryButtonStyling()
                 
                 Button("Leave Game") {
-                        viewModel.isAnswerCorrect = false
-                        viewModel.isAnswerPicked = false
-                        viewModel.gameLoadingState = .inactive
-                        viewModel.isGameStarted = false
-                        viewModel.currentScore = 0
+                    viewModel.leaveGame()
                 }
-                .primaryButtonStyling()
+                .bottomButtonsModifier(textColor: .black, backgroundColor: .white, opacity: 1.0)
+                
+                Button("Next Pokemon") {
+                    Task {
+                        await viewModel.nextRound()
+                    }
+                }
+                .bottomButtonsModifier(textColor: .white, backgroundColor: .black, opacity: 0.6)
             }
         }
-        .padding(.bottom, 22)
+        .padding(.horizontal)
+        .padding(.bottom, 28)
     }
 }
 

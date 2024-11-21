@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension View {
-    @ViewBuilder public func `if`<T: View>(_ condition: Bool, view: (Self) -> T) -> some View {
+    @ViewBuilder public func conditionalModifier<T: View>(_ condition: Bool, view: (Self) -> T) -> some View {
         if condition {
             view(self)
         } else {
@@ -16,17 +16,58 @@ extension View {
         }
     }
     
-    func primaryButtonStyling() -> some View {
-        modifier(PrimaryButtonStyling())
+    func inactiveViewModifier() -> some View {
+        modifier(InactiveViewButtonModifier())
+    }
+    
+    func multipleChoiceModifier() -> some View {
+        modifier(MultipleChoiceModifier())
+    }
+    
+    func bottomButtonsModifier(textColor: Color,
+                               backgroundColor: Color,
+                               opacity: Double) -> some View {
+        modifier(BottomButtonsModifer(textColor: textColor,
+                                      backgroundColor: backgroundColor,
+                                      opacity: opacity))
     }
 }
 
-struct PrimaryButtonStyling: ViewModifier {
+struct InactiveViewButtonModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .buttonStyle(.borderedProminent)
-            .tint(.yellow)
-            .shadow(color: .blue, radius: 2)
-            .opacity(0.8)
+            .foregroundStyle(.white)
+            .fontWeight(.semibold)
+            .padding()
+            .buttonStyle(.plain)
+            .background(.thinMaterial,in: RoundedRectangle(cornerRadius: 8))
+            .environment(\.colorScheme, .dark)
     }
 }
+
+struct MultipleChoiceModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(.white)
+            .fontWeight(.semibold)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical)
+            .buttonStyle(.plain)
+    }
+}
+
+struct BottomButtonsModifer: ViewModifier {
+    var textColor: Color
+    var backgroundColor: Color
+    var opacity: Double
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(textColor)
+            .fontWeight(.semibold)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical)
+            .buttonStyle(.plain)
+            .background(backgroundColor.opacity(opacity), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
