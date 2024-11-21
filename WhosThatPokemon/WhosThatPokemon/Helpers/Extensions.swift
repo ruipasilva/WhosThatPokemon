@@ -31,6 +31,11 @@ extension View {
                                       backgroundColor: backgroundColor,
                                       opacity: opacity))
     }
+    
+    func scoreViewModifier(_ isGameStarted: Bool) -> some View {
+        modifier(ScoreViewModifier(isGameStarted: isGameStarted))
+        
+    }
 }
 
 struct InactiveViewButtonModifier: ViewModifier {
@@ -60,6 +65,7 @@ struct BottomButtonsModifer: ViewModifier {
     var textColor: Color
     var backgroundColor: Color
     var opacity: Double
+    
     func body(content: Content) -> some View {
         content
             .foregroundStyle(textColor)
@@ -68,6 +74,19 @@ struct BottomButtonsModifer: ViewModifier {
             .padding(.vertical)
             .buttonStyle(.plain)
             .background(backgroundColor.opacity(opacity), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+struct ScoreViewModifier: ViewModifier {
+    var isGameStarted: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .monospacedDigit()
+            .padding(.top)
+            .opacity(isGameStarted ? 1 : 0)
     }
 }
 

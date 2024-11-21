@@ -28,6 +28,7 @@ struct GameView: View {
         VStack {
             Spacer()
                 .frame(height: 120)
+            // Could move this view into it's own view to reuse in top score and current score
             Text("Who's that pokemon?")
                 .font(.title)
                 .fontWeight(.heavy)
@@ -42,11 +43,7 @@ struct GameView: View {
                         }, value: viewModel.currentScore)
                 }
             }
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .monospacedDigit()
-            .padding(.top)
-            .opacity(viewModel.isGameStarted ? 1 : 0)
+            .scoreViewModifier(viewModel.isGameStarted)
             Spacer()
         }
     }
@@ -91,6 +88,7 @@ struct GameView: View {
                     viewModel.reset(score: &topScore)
                 }
             }
+            .disabled(topScore == 0)
             .inactiveViewModifier()
         }
     }
