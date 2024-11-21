@@ -94,7 +94,7 @@ struct GameView: View {
             .inactiveViewModifier()
         }
     }
-
+    
     
     private func imageLoadedView(pokemon: PokemonDetail) -> some View {
         VStack {
@@ -103,20 +103,20 @@ struct GameView: View {
                 image
                     .image?.resizable()
                     .frame(width: 300, height: 300, alignment: .center)
-                    
                     .conditionalModifier(!viewModel.isAnswerPicked, view: { view in
                         view.colorMultiply(.black.opacity(0.5))
                     })
                     .changeEffect(.spin, value: viewModel.isAnswerPicked)
             }
-            
             Group {
                 Text("It's \(pokemon.name.capitalized)!")
                     .font(.largeTitle)
                     .fontWeight(.heavy)
                     .foregroundStyle(Color.white)
                 HStack {
-                    Text("You guessed \(viewModel.selectedAnswer.capitalized)")
+                    Text(pokemon.name == viewModel.selectedAnswer
+                         ? "You guessed it right"
+                         : "Oh no! Better luck next time!")
                         .foregroundStyle(Color.brown.opacity(0.8))
                         .fontWeight(.bold)
                 }

@@ -22,7 +22,6 @@ public final class GameViewViewModel: ObservableObject {
     
     var networkManager: NetworkManaging
     
-    
     init(networkManager: NetworkManaging = NetworkManager()) {
         self.networkManager = networkManager
         
@@ -33,11 +32,13 @@ public final class GameViewViewModel: ObservableObject {
     
     @MainActor
     public func getAllPokemons() async {
+        gameLoadingState = .loading
         do {
             let pokemons = try await networkManager.fetchMultiplePokemons()
             
             allPokemons = pokemons.results
         
+            gameLoadingState = .inactive
         } catch let error as NetworkError {
             switch error {
             case .invalidURL, .invalidData, .invalidResponse, .unableToComplete:
@@ -80,7 +81,6 @@ public final class GameViewViewModel: ObservableObject {
     
     public func selectAnswer(_ pokemon: Pokemon, topScore: inout Int) {
         isAnswerPicked = true
-        isAnswerCorrect = true
         selectedAnswer = pokemon.name
         if pokemon.name == pokemonDetail?.name {
             currentScore += 1
@@ -91,7 +91,6 @@ public final class GameViewViewModel: ObservableObject {
     }
     
     public func leaveGame() {
-        isAnswerCorrect = false
         isAnswerPicked = false
         isGameStarted = false
         currentScore = 0
@@ -104,7 +103,6 @@ public final class GameViewViewModel: ObservableObject {
     
     @MainActor
     public func nextRound() async {
-        isAnswerCorrect = false
         isAnswerPicked = false
         await getFourPossibleAnswers()
     }
