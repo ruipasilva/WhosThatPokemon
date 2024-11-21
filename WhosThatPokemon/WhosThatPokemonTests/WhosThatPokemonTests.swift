@@ -47,8 +47,21 @@ final class WhosThatPokemonTests: XCTestCase {
         XCTAssertEqual(sut.allPokemons.count, 4)
     }
     
+    func test_FetchSinglePokemon_WhenFailed() async {
+        //Given
+        mockNetworkManager.shouldReturnError = true
+        sut.allPokemons = Mocks.allPokemons
+        
+        //When
+        await sut.getFourPossibleAnswers()
+        
+        // Then
+        XCTAssertNil(mockNetworkManager.pokemonDetail)
+    }
+    
     func test_FetchAllPokemons_WhenSuccessful() async {
         //Given
+        mockNetworkManager.shouldReturnError = true
         let expectedAllPokemons: [Pokemon] = Mocks.allPokemons
         
         mockNetworkManager.pokemonList?.results = expectedAllPokemons
@@ -59,6 +72,19 @@ final class WhosThatPokemonTests: XCTestCase {
         //Then
         XCTAssertEqual(sut.allPokemons.first?.name, mockNetworkManager.pokemonList?.results.first?.name)
         XCTAssertEqual(sut.isGameStarted, false)
+    }
+    
+    func test_FetchAllPokemons_WhenFailed() async {
+        //Given
+        let expectedAllPokemons: [Pokemon] = Mocks.allPokemons
+        
+        mockNetworkManager.pokemonList?.results = expectedAllPokemons
+        
+        //When
+        await sut.getAllPokemons()
+        
+        //Then
+        XCTAssertNil(mockNetworkManager.pokemonList)
     }
     
     func test_WhenRightAnswerSelected_ThenScoreIncremented() {
