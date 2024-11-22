@@ -21,6 +21,9 @@ Guess the pokemon by the silhoutte and try to beat your own high score.
 
 # Future Development Ideas
 - Accessibility
+  - Text Size
+  - Labels
+  - Localisation
 - Better error handling
 - Hard mode (with textfield instead of buttons)
 
