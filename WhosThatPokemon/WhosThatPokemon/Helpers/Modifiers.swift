@@ -1,42 +1,11 @@
 //
-//  Extensions.swift
+//  Modifiers.swift
 //  WhosThatPokemon
 //
-//  Created by Rui Silva on 20/11/2024.
+//  Created by Rui Silva on 22/11/2024.
 //
 
 import SwiftUI
-
-extension View {
-    @ViewBuilder public func conditionalModifier<T: View>(_ condition: Bool, view: (Self) -> T) -> some View {
-        if condition {
-            view(self)
-        } else {
-            self
-        }
-    }
-    
-    func inactiveViewModifier() -> some View {
-        modifier(InactiveViewButtonModifier())
-    }
-    
-    func multipleChoiceModifier() -> some View {
-        modifier(MultipleChoiceModifier())
-    }
-    
-    func bottomButtonsModifier(textColor: Color,
-                               backgroundColor: Color,
-                               opacity: Double) -> some View {
-        modifier(BottomButtonsModifer(textColor: textColor,
-                                      backgroundColor: backgroundColor,
-                                      opacity: opacity))
-    }
-    
-    func scoreViewModifier(_ isGameStarted: Bool) -> some View {
-        modifier(ScoreViewModifier(isGameStarted: isGameStarted))
-        
-    }
-}
 
 struct InactiveViewButtonModifier: ViewModifier {
     func body(content: Content) -> some View {
@@ -77,6 +46,14 @@ struct BottomButtonsModifer: ViewModifier {
     }
 }
 
+struct BottomButtonsStackModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal)
+            .padding(.bottom, 28)
+    }
+}
+
 struct ScoreViewModifier: ViewModifier {
     var isGameStarted: Bool
     
@@ -87,6 +64,31 @@ struct ScoreViewModifier: ViewModifier {
             .monospacedDigit()
             .padding(.top)
             .opacity(isGameStarted ? 1 : 0)
+    }
+}
+
+struct TitleViewModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.title)
+            .fontWeight(.heavy)
+    }
+}
+
+struct PokemonNameRevealedModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .fontWeight(.heavy)
+            .foregroundStyle(Color.white)
+    }
+}
+
+struct RightOrWrongModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(Color.brown.opacity(0.8))
+            .fontWeight(.bold)
     }
 }
 

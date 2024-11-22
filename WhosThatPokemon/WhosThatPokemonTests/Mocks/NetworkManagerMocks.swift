@@ -16,7 +16,7 @@ class NetworkManagerMock: NetworkManaging {
     
     public func fetchSinglePokemon(query: String) async throws -> PokemonDetail {
         if shouldReturnError {
-            throw NetworkError.invalidResponse
+            throw NetworkError.unableToComplete
         } else if let pokemonDetail = pokemonDetail {
             return pokemonDetail
         } else {
@@ -26,7 +26,7 @@ class NetworkManagerMock: NetworkManaging {
     
     func fetchMultiplePokemons() async throws -> PokemonList {
         if shouldReturnError {
-            throw NetworkError.invalidResponse
+            throw NetworkError.unableToComplete
         } else if let pokemonList = pokemonList {
             return pokemonList
         } else {

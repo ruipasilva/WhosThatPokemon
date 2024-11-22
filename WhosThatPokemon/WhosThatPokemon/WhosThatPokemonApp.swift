@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct WhosThatPokemonApp: App {
+    @StateObject private var viewModel = GameViewViewModel()
     var body: some Scene {
         WindowGroup {
-            GameView()
+            GameView(viewModel: viewModel)
         }
     }
 }

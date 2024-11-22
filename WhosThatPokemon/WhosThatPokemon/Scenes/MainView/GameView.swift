@@ -9,14 +9,18 @@ import SwiftUI
 import Pow
 
 struct GameView: View {
-    @StateObject private var viewModel = GameViewViewModel()
+    @ObservedObject private var viewModel: GameViewViewModel
     @AppStorage("topScore") private var topScore = 0
     
     private var gridItemLayout = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
     
+    public init(viewModel: GameViewViewModel) {
+        self.viewModel = viewModel
+    }
+    
     var body: some View {
         ZStack {
-            Color.mainViewBackground
+            backgroundGradient
             titleView
             imageView
             bottomButtons
@@ -24,27 +28,34 @@ struct GameView: View {
         .ignoresSafeArea()
     }
     
+    private var backgroundGradient: some View {
+        LinearGradient(colors: [.mainViewBackground, .bottomViewBackgeound], startPoint: .top, endPoint: .bottom)
+    }
+    
     private var titleView: some View {
         VStack {
             Spacer()
                 .frame(height: 120)
-            // Could move this view into it's own view to reuse in top score and current score
             Text("Who's that pokemon?")
-                .font(.title)
-                .fontWeight(.heavy)
-                .foregroundStyle(Color.black.opacity(0.8))
-            HStack {
-                Text("Top Score: \(topScore)")
-                HStack {
-                    Text("Current Score:")
-                    Text("\(viewModel.currentScore)")
-                        .changeEffect(.rise(origin: UnitPoint(x: 0.75, y: 0.25)) {
-                            Text("+1")
-                        }, value: viewModel.currentScore)
-                }
+                .titleViewModifier()
+            HStack(alignment: .center) {
+                scroresView(score: topScore)
+                Text("|")
+                scroresView(score: viewModel.currentScore)
             }
             .scoreViewModifier(viewModel.isGameStarted)
             Spacer()
+        }
+    }
+    
+    private func scroresView(score: Int) -> some View {
+        HStack(spacing: 4) {
+            Text("Top Score:")
+            Text("\(score)")
+                .changeEffect(.rise(origin: UnitPoint(x: 0.75, y: 1.5)) {
+                    Text("+1")
+                        .foregroundStyle(.green)
+                }, value: score)
         }
     }
     
@@ -53,23 +64,13 @@ struct GameView: View {
             switch viewModel.gameLoadingState {
             case .loading:
                 ProgressView()
-                    .frame(maxHeight: .infinity)
             case .inactive:
                 inactiveView
             case .imageLoaded(pokemon: let pokemon):
-                imageLoadedView(pokemon: pokemon)
+                imageLoadedView(pokemonDetail: pokemon)
             case .failed(error: let error):
                 Text("Something went wrong with error: \(error)")
-            }
-        }
-    }
-    
-    private var bottomButtons: some View {
-        VStack {
-            if viewModel.isGameStarted {
-                Spacer()
-                multipleChoiceView
-                moreOptionsView
+                    .padding(.horizontal)
             }
         }
     }
@@ -85,7 +86,7 @@ struct GameView: View {
             
             Button("Reset Top Score!") {
                 Task {
-                    viewModel.reset(score: &topScore)
+                    viewModel.reset(topScore: &topScore)
                 }
             }
             .disabled(topScore == 0)
@@ -93,11 +94,10 @@ struct GameView: View {
         }
     }
     
-    
-    private func imageLoadedView(pokemon: PokemonDetail) -> some View {
+    private func imageLoadedView(pokemonDetail: PokemonDetail) -> some View {
         VStack {
             Spacer()
-            AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
+            AsyncImage(url: URL(string: pokemonDetail.sprites.frontDefault)) { image in
                 image
                     .image?.resizable()
                     .frame(width: 300, height: 300, alignment: .center)
@@ -107,20 +107,27 @@ struct GameView: View {
                     .changeEffect(.spin, value: viewModel.isAnswerPicked)
             }
             Group {
-                Text("It's \(pokemon.name.capitalized)!")
-                    .font(.largeTitle)
-                    .fontWeight(.heavy)
-                    .foregroundStyle(Color.white)
+                Text("It's \(pokemonDetail.name.capitalized)!")
+                    .pokemonNameRevealedModifier()
                 HStack {
-                    Text(pokemon.name == viewModel.selectedAnswer
+                    Text(pokemonDetail.name == viewModel.selectedAnswer
                          ? "You guessed it right"
                          : "Oh no! Better luck next time!")
-                        .foregroundStyle(Color.brown.opacity(0.8))
-                        .fontWeight(.bold)
+                    .rightOrWrongModifier()
                 }
             }
             .opacity(viewModel.isAnswerPicked ? 1 : 0)
             Spacer()
+        }
+    }
+    
+    private var bottomButtons: some View {
+        VStack {
+            if viewModel.isGameStarted {
+                Spacer()
+                multipleChoiceView
+                moreOptionsView
+            }
         }
     }
     
@@ -141,7 +148,7 @@ struct GameView: View {
                         .background(viewModel.checkIfSameName(pokemon: pokemon) ? .green : .red, in: RoundedRectangle(cornerRadius: 8))
                         .opacity(0.8)
                 })
-                .conditionalEffect(.repeat(.shine, every: .seconds(1)), condition: viewModel.checkIfSameName(pokemon: pokemon) && viewModel.isAnswerPicked)
+                .conditionalEffect(.repeat(.shine, every: .seconds(1)), condition: viewModel.checkIfSameNameAndAnswerPicked(pokemon: pokemon))
             }
         }
         .padding()
@@ -149,26 +156,22 @@ struct GameView: View {
     
     private var moreOptionsView: some View {
         HStack(spacing: 10) {
-            if viewModel.isGameStarted {
-                
-                Button("Leave Game") {
-                    viewModel.leaveGame()
-                }
-                .bottomButtonsModifier(textColor: .black, backgroundColor: .white, opacity: 1.0)
-                
-                Button("Next Pokemon") {
-                    Task {
-                        await viewModel.nextRound()
-                    }
-                }
-                .bottomButtonsModifier(textColor: .white, backgroundColor: .black, opacity: 0.6)
+            Button("Leave Game") {
+                viewModel.leaveGame()
             }
+            .bottomButtonsModifier(textColor: .black, backgroundColor: .white, opacity: 1.0)
+            
+            Button("Next Pokemon") {
+                Task {
+                    await viewModel.nextRound()
+                }
+            }
+            .bottomButtonsModifier(textColor: .white, backgroundColor: .black, opacity: 0.6)
+            
         }
-        .padding(.horizontal)
-        .padding(.bottom, 28)
-    }
+        .bottomButtonStakModifier()    }
 }
 
 #Preview {
-    GameView()
+    GameView(viewModel: .init())
 }

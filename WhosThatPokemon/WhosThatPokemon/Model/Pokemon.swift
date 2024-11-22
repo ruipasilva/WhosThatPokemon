@@ -16,8 +16,8 @@ public struct Sprites: Codable {
     var frontDefault: String
     
     enum CodingKeys: String, CodingKey {
-            case frontDefault = "front_default"
-        }
+        case frontDefault = "front_default"
+    }
 }
 
 public struct PokemonList: Codable {

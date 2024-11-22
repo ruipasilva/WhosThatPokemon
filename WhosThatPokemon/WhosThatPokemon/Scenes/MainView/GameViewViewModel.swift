@@ -15,7 +15,6 @@ public final class GameViewViewModel: ObservableObject {
     @Published public var selectedAnswer = ""
     @Published public var currentScore = 0
     
-    
     public var pokemonDetail: PokemonDetail?
     public var allPokemons = [Pokemon]()
     public var firstFourRandomPokemons = [Pokemon]()
@@ -39,11 +38,8 @@ public final class GameViewViewModel: ObservableObject {
             allPokemons = pokemons.results
         
             gameLoadingState = .inactive
-        } catch let error as NetworkError {
-            switch error {
-            case .invalidURL, .invalidData, .invalidResponse, .unableToComplete:
-                gameLoadingState = .failed(error: error.title)
-            }
+        } catch let networkError as NetworkError {
+            handleError(networkError: networkError)
         } catch {
             gameLoadingState = .failed(error: error.localizedDescription)
         }
@@ -58,8 +54,6 @@ public final class GameViewViewModel: ObservableObject {
         guard let randomPokemonUrl = firstFourRandomPokemons.randomElement()?.url else { return }
         
         await getPokemonDetail(with: randomPokemonUrl)
-        
-        isGameStarted = true
     }
     
     @MainActor
@@ -69,13 +63,18 @@ public final class GameViewViewModel: ObservableObject {
             let pokemonDetail = try await networkManager.fetchSinglePokemon(query: url)
             self.pokemonDetail = pokemonDetail
             gameLoadingState = .imageLoaded(pokemon: pokemonDetail)
-        } catch let error as NetworkError {
-            switch error {
-            case .invalidURL, .invalidData, .invalidResponse, .unableToComplete:
-                gameLoadingState = .failed(error: error.title)
-            }
+            isGameStarted = true
+        } catch let networkError as NetworkError {
+            handleError(networkError: networkError)
         } catch {
             gameLoadingState = .failed(error: error.localizedDescription)
+        }
+    }
+    
+    private func handleError(networkError: NetworkError) {
+        switch networkError {
+        case .invalidURL, .invalidData, .invalidResponse, .unableToComplete:
+            gameLoadingState = .failed(error: networkError.title)
         }
     }
     
@@ -83,10 +82,14 @@ public final class GameViewViewModel: ObservableObject {
         isAnswerPicked = true
         selectedAnswer = pokemon.name
         if pokemon.name == pokemonDetail?.name {
-            currentScore += 1
-            if currentScore > topScore {
-                topScore = currentScore
-            }
+            handleScore(topScore: &topScore)
+        }
+    }
+    
+    private func handleScore(topScore: inout Int) {
+        currentScore += 1
+        if currentScore > topScore {
+            topScore = currentScore
         }
     }
     
@@ -97,8 +100,8 @@ public final class GameViewViewModel: ObservableObject {
         gameLoadingState = .inactive
     }
     
-    public func reset(score: inout Int) {
-        score = 0
+    public func reset(topScore: inout Int) {
+        topScore = 0
     }
     
     @MainActor
@@ -109,5 +112,9 @@ public final class GameViewViewModel: ObservableObject {
     
     public func checkIfSameName(pokemon: Pokemon) -> Bool {
         pokemon.name == pokemonDetail?.name
+    }
+    
+    public func checkIfSameNameAndAnswerPicked(pokemon: Pokemon) -> Bool {
+        checkIfSameName(pokemon: pokemon) && isAnswerPicked
     }
 }

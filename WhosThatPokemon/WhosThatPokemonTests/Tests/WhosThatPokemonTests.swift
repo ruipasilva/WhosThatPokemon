@@ -10,7 +10,7 @@ import XCTest
 
 final class WhosThatPokemonTests: XCTestCase {
     typealias Mocks = MockPokemons
-
+    
     var sut: GameViewViewModel!
     var mockNetworkManager: NetworkManagerMock!
     
@@ -37,7 +37,6 @@ final class WhosThatPokemonTests: XCTestCase {
         
         sut.allPokemons = Mocks.allPokemons
         
-        
         //When
         await sut.getFourPossibleAnswers()
         
@@ -57,6 +56,7 @@ final class WhosThatPokemonTests: XCTestCase {
         
         // Then
         XCTAssertNil(mockNetworkManager.pokemonDetail)
+        XCTAssertEqual(sut.isGameStarted, false)
     }
     
     func test_FetchAllPokemons_WhenSuccessful() async {
@@ -85,6 +85,7 @@ final class WhosThatPokemonTests: XCTestCase {
         
         //Then
         XCTAssertNil(mockNetworkManager.pokemonList)
+        XCTAssertEqual(sut.isGameStarted, false)
     }
     
     func test_WhenRightAnswerSelected_ThenScoreIncremented() {
@@ -93,7 +94,7 @@ final class WhosThatPokemonTests: XCTestCase {
         let expectedScore = 1
         var topScore = Int.max
         let correctPokemon = Mocks.singlePokemon
-    
+        
         sut.currentScore = initialScore
         sut.pokemonDetail = Mocks.singlePokemonDetail
         
@@ -123,11 +124,11 @@ final class WhosThatPokemonTests: XCTestCase {
     
     func test_WhenCurrentScoreIsHigherThanTopScore_ThenTopScoreIsUpdated() {
         //Given
-        let initialScore = 4
+        let currentScore = 4
         var topScore = 3
         let correctPokemon = Mocks.singlePokemon
-    
-        sut.currentScore = initialScore
+        
+        sut.currentScore = currentScore
         sut.pokemonDetail = Mocks.singlePokemonDetail
         
         //When
@@ -137,15 +138,30 @@ final class WhosThatPokemonTests: XCTestCase {
         XCTAssertEqual(sut.currentScore, topScore)
     }
     
-    func test_WhenUserLeavesGame_ThenScoreIsReset() {
+    func test_WhenCurrentScoreIsLowerThanTopScore_ThenTopScoreIsNotUpdated() {
         //Given
-        let initialScore = 4
+        let currentScore = 1
+        var topScore = 3
+        let correctPokemon = Mocks.singlePokemon
         
-        sut.currentScore = initialScore
+        sut.currentScore = currentScore
+        sut.pokemonDetail = Mocks.singlePokemonDetail
+        
+        //When
+        sut.selectAnswer(correctPokemon, topScore: &topScore)
+        
+        // Then
+        XCTAssertLessThan(currentScore, topScore)
+    }
+    
+    func test_WhenUserLeavesGame_ThenCurrentScoreIsReset() {
+        //Given
+        let currentScore = 4
+        
+        sut.currentScore = currentScore
         
         //When
         sut.leaveGame()
-        
         
         //Then
         XCTAssertEqual(sut.currentScore, 0)
@@ -157,7 +173,7 @@ final class WhosThatPokemonTests: XCTestCase {
         let resetScore = 0
         
         // When
-        sut.reset(score: &topScore)
+        sut.reset(topScore: &topScore)
         
         //Then
         XCTAssertEqual(topScore, resetScore)
