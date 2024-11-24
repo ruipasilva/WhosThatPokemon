@@ -19,13 +19,19 @@ struct GameView: View {
     }
     
     var body: some View {
-        ZStack {
-            backgroundGradient
-            titleView
-            imageView
-            bottomButtons
+        NavigationStack{
+            ZStack{
+                backgroundGradient
+                    .ignoresSafeArea()
+                VStack {
+                    titleView
+                    imageView
+                    
+                    bottomButtons
+                }
+            }
+            .navigationTitle("Who's that pokemon?")
         }
-        .ignoresSafeArea()
     }
     
     private var backgroundGradient: some View {
@@ -34,23 +40,19 @@ struct GameView: View {
     
     private var titleView: some View {
         VStack {
-            Spacer()
-                .frame(height: 120)
-            Text("Who's that pokemon?")
-                .titleViewModifier()
             HStack(alignment: .center) {
-                scroresView(score: topScore)
+                scroresView(score: topScore, description: "Top Score:")
                 Text("|")
-                scroresView(score: viewModel.currentScore)
+                scroresView(score: viewModel.currentScore, description: "Current Score:")
             }
             .scoreViewModifier(viewModel.isGameStarted)
-            Spacer()
+            
         }
     }
     
-    private func scroresView(score: Int) -> some View {
+    private func scroresView(score: Int, description: String) -> some View {
         HStack(spacing: 4) {
-            Text("Top Score:")
+            Text("\(description)")
             Text("\(score)")
                 .changeEffect(.rise(origin: UnitPoint(x: 0.75, y: 1.5)) {
                     Text("+1")
@@ -77,6 +79,7 @@ struct GameView: View {
     
     private var inactiveView: some View {
         VStack(spacing: 10) {
+            Spacer()
             Button("Start Game!") {
                 Task {
                     await viewModel.getFourPossibleAnswers()
@@ -91,16 +94,16 @@ struct GameView: View {
             }
             .disabled(topScore == 0)
             .inactiveViewModifier()
+            Spacer()
         }
     }
     
     private func imageLoadedView(pokemonDetail: PokemonDetail) -> some View {
         VStack {
-            Spacer()
             AsyncImage(url: URL(string: pokemonDetail.sprites.frontDefault)) { image in
                 image
                     .image?.resizable()
-                    .frame(width: 300, height: 300, alignment: .center)
+                    .scaledToFit()
                     .conditionalModifier(!viewModel.isAnswerPicked, view: { view in
                         view.colorMultiply(.black.opacity(0.5))
                     })
@@ -117,7 +120,6 @@ struct GameView: View {
                 }
             }
             .opacity(viewModel.isAnswerPicked ? 1 : 0)
-            Spacer()
         }
     }
     

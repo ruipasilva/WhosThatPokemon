@@ -67,14 +67,6 @@ struct ScoreViewModifier: ViewModifier {
     }
 }
 
-struct TitleViewModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.title)
-            .fontWeight(.heavy)
-    }
-}
-
 struct PokemonNameRevealedModifier: ViewModifier {
     func body(content: Content) -> some View {
         content

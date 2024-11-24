@@ -36,10 +36,6 @@ extension View {
         modifier(ScoreViewModifier(isGameStarted: isGameStarted))
     }
     
-    func titleViewModifier() -> some View {
-        modifier(TitleViewModifier())
-    }
-    
     func pokemonNameRevealedModifier() -> some View {
         modifier(PokemonNameRevealedModifier())
     }

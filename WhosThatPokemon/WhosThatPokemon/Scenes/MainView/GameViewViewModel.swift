@@ -68,6 +68,7 @@ public final class GameViewViewModel: ObservableObject {
             handleError(networkError: networkError)
         } catch {
             gameLoadingState = .failed(error: error.localizedDescription)
+            isGameStarted = false
         }
     }
     
@@ -75,6 +76,7 @@ public final class GameViewViewModel: ObservableObject {
         switch networkError {
         case .invalidURL, .invalidData, .invalidResponse, .unableToComplete:
             gameLoadingState = .failed(error: networkError.title)
+            isGameStarted = false
         }
     }
     
