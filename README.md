@@ -1,6 +1,6 @@
 # WhosThatPokemon
-![WTPPreview1](PokemonHidden.png) 
-![WTPPreview2](PokemonRevealed.png)
+<img src="PokemonHidden.png" width="400" /> <img src="PokemonRevealed.png" width="400">
+
 
 # Overview
 A very simple and modern version of "Who's that pokemon?" inspired by the original show segment.\
